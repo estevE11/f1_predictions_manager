@@ -14,8 +14,8 @@ players = 4
 
 def update_sheet(year):
     sheet = client.open("f1 pred test").sheet1
-    update_results(sheet, year, 5)
-    check_results(sheet, year, 5)
+    #update_results(sheet, year)
+    check_results(sheet, year)
 
 def update_countries(sheet, year):
     data = f1stats.get(str(year))
@@ -50,6 +50,7 @@ def check_results(sheet, year, rnd="last"):
     fl_name = get_fl(year, rnd)
 
     for p in range(players):
+        score = 0
         for i in range(0, 3):
             x = 3+(p*7)+i
             y = rnd+1
@@ -57,6 +58,7 @@ def check_results(sheet, year, rnd="last"):
             col = None
             if val.lower() == constants.drivers_name[podium[i]].lower():
                 col = constants.color_right
+                score += 1
             else:
                 col = constants.color_wrong
             c_update_cell(sheet, x, y, val, col)
@@ -65,9 +67,12 @@ def check_results(sheet, year, rnd="last"):
         val = sheet.cell(x, y).value
         if val.lower() == constants.drivers_name[fl_name].lower():
             col = constants.color_right
+            score += 1
         else:
             col = constants.color_wrong
         c_update_cell(sheet, x, y, val, col)
+        curr_score = int(sheet.cell(2+p*7, 4).value)
+        c_update_cell(sheet, 2+p*7, 4, str(curr_score+score))
 
 def get_podium(year, rnd="last"):
     data = f1stats.get(str(year) + " " + str(rnd) + " results")

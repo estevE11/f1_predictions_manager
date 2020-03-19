@@ -3,6 +3,7 @@ import gspread
 from gspread_formatting import *
 from oauth2client.service_account import ServiceAccountCredentials
 import json
+import sys
 
 import constants
 
@@ -14,8 +15,25 @@ players = 4
 
 def update_sheet(year):
     sheet = client.open("f1 pred test").sheet1
-    #update_results(sheet, year)
-    check_results(sheet, year)
+    if len(sys.argv) > 1 and len(sys.argv) <= 3:
+        r = "last"
+        if len(sys.argv) == 3:
+            r = sys.argv[2]
+        for it in sys.argv[1]:
+            if it == "u":
+                print("Updating podium for round " + r)
+                #update_results(sheet, year, r)
+            elif it == "c":
+                print("Checking bets for round " + r)
+                #check_results(sheet, year, r)
+            elif it == "i":
+                print("Creating/Updating countries")
+                #update_countries(sheet, year)
+    else:
+        print("Error: 1 argument needed")
+        print(" - u: Update poduium")
+        print(" - c: Check bets")
+        print(" - i: Update counties names")
 
 def update_countries(sheet, year):
     data = f1stats.get(str(year))
@@ -30,6 +48,8 @@ def update_results(sheet, year, rnd="last"):
     data = f1stats.get(str(year) + " " + str(rnd) + " results")
     if rnd == "last":
         rnd = int(data["RaceTable"]["round"])
+    else:
+        rnd = int(rnd)
     for i in range(3):
         driver = data["RaceTable"]["Races"][0]["Results"][i]["Driver"]
         name = driver["familyName"]
@@ -45,6 +65,8 @@ def check_results(sheet, year, rnd="last"):
     data = f1stats.get(str(year) + " " + str(rnd) + " results")
     if rnd == "last":
         rnd = int(data["RaceTable"]["round"])
+    else:
+        rnd = int(rnd)
     
     podium = get_podium(year, rnd)
     fl_name = get_fl(year, rnd)
@@ -110,5 +132,4 @@ def c_update_cell(sheet, x, y, name, cb=Color(1, 1, 1), ct=Color(0, 0, 0)):
     fmt = CellFormat(backgroundColor=cb, textFormat=textFormat(foregroundColor=ct))
     format_cell_range(sheet, rowcol_to_a1(x, y), fmt)
 
-update_sheet("current")
-#print(f1pystats.get("2007"))
+update_sheet(2019)

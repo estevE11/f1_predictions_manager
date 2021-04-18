@@ -14,7 +14,7 @@ client = gspread.authorize(creds)
 players = 4
 
 def update_sheet(year):
-    sheet = client.open("f1 pred test").sheet1
+    sheet = client.open("F1 2021 Predictions").sheet1
     if len(sys.argv) > 1 and len(sys.argv) <= 3:
         r = "last"
         if len(sys.argv) == 3:
@@ -22,13 +22,13 @@ def update_sheet(year):
         for it in sys.argv[1]:
             if it == "u":
                 print("Updating podium for round " + r)
-                #update_results(sheet, year, r)
+                update_results(sheet, year, r)
             elif it == "c":
                 print("Checking bets for round " + r)
-                #check_results(sheet, year, r)
+                check_results(sheet, year, r)
             elif it == "i":
                 print("Creating/Updating countries")
-                #update_countries(sheet, year)
+                update_countries(sheet, year)
     else:
         print("Error: 1 argument needed")
         print(" - u: Update poduium")
@@ -110,8 +110,9 @@ def get_fl(year, rnd="last"):
     fl_id = "No Name"
     fl_millis = 9999999999999999999
     drivers = data["RaceTable"]["Races"][0]["Results"]
-    #print(drivers)
     for i in range(len(drivers)):
+        if("FastestLap" not in drivers[i].keys()):
+            continue
         time = min_to_millis(drivers[i]["FastestLap"]["Time"]["time"])
         if time < fl_millis:
             fl_id = drivers[i]["Driver"]["driverId"]
@@ -130,6 +131,6 @@ def min_to_millis(time):
 def c_update_cell(sheet, x, y, name, cb=Color(1, 1, 1), ct=Color(0, 0, 0)):
     sheet.update_cell(x, y, name)
     fmt = CellFormat(backgroundColor=cb, textFormat=textFormat(foregroundColor=ct))
-    format_cell_range(sheet, rowcol_to_a1(x, y), fmt)
+    format_cell_range(sheet, gspread.utils.rowcol_to_a1(x, y), fmt)
 
-update_sheet(2019)
+update_sheet(2021)
